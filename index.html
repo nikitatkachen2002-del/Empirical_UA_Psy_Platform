@@ -611,11 +611,10 @@
             lastResultData: null,
 
             init() {
-                // Инициализация Telegram Web App
                 if (window.Telegram && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
                     tg.ready();
-                    tg.expand(); // Разворачиваем приложение на весь экран
+                    tg.expand();
                 }
 
                 const savedId = sessionStorage.getItem('empirical_id');
@@ -748,6 +747,28 @@
                     picture: clinicalPicture,
                     date: new Date().toLocaleString()
                 };
+
+                // --- ПОЛУЧАЕМ TELEGRAM USER ID ---
+                let telegramUserId = null;
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
+                }
+
+                // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
+                const workerUrl = 'https://ТВОЙ-WORKER-URL.workers.dev'; // ЗАМЕНИ НА СВОЙ URL WORKER!
+
+                fetch(workerUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegramUserId: telegramUserId,
+                        id: this.lastResultData.id,
+                        title: this.lastResultData.title,
+                        score: this.lastResultData.score,
+                        interp: this.lastResultData.interp,
+                        date: this.lastResultData.date
+                    })
+                }).catch(err => console.error('Помилка відправки:', err));
 
                 document.getElementById('result-score').textContent = totalScore;
                 document.getElementById('result-interp').textContent = interpretation;
