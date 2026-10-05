@@ -290,25 +290,66 @@
                 }
             },
 
-            submitTest() {
-                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                let totalScore = 0;
-                
-                inputs.forEach((input) => {
-                    totalScore += parseInt(input.value);
-                });
-                
-                const interpretation = this.currentTest.interpret(totalScore);
-                const clinicalPicture = this.currentTest.getClinicalPicture(totalScore, this.demographics);
+           submitTest() {
+    const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+    let totalScore = 0;
+    
+    inputs.forEach((input) => {
+        totalScore += parseInt(input.value);
+    });
+    
+    const interpretation = this.currentTest.interpret(totalScore);
+    const clinicalPicture = this.currentTest.getClinicalPicture(totalScore, this.demographics);
 
-                this.lastResultData = {
-                    title: this.currentTest.title,
-                    id: this.participantId,
-                    score: totalScore,
-                    interp: interpretation,
-                    picture: clinicalPicture,
-                    date: new Date().toLocaleString()
-                };
+    this.lastResultData = {
+        title: this.currentTest.title,
+        id: this.participantId,
+        score: totalScore,
+        interp: interpretation,
+        picture: clinicalPicture,
+        date: new Date().toLocaleString()
+    };
+
+    // Получаем ID пользователя из Telegram
+    let telegramUserId = null;
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+        telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
+    }
+
+    // Если открыто не в Telegram или ID потерялся
+    if (!telegramUserId) {
+        alert("Помилка: відкрийте додаток всередині Telegram, щоб бот зміг надіслати вам результат.");
+        return;
+    }
+
+    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+
+    fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            telegramUserId: telegramUserId,
+            id: this.lastResultData.id,
+            title: this.lastResultData.title,
+            score: this.lastResultData.score,
+            interp: this.lastResultData.interp,
+            date: this.lastResultData.date
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Відповідь від сервера: " + JSON.stringify(data));
+    })
+    .catch(err => {
+        alert("Критична помилка відправки: " + err);
+    });
+
+    document.getElementById('result-score').textContent = totalScore;
+    document.getElementById('result-interp').textContent = interpretation;
+    document.getElementById('clinical-summary').textContent = clinicalPicture;
+
+    this.switchView('view-result');
+    window.scrollTo(0, 0);
 
                 // --- ДИАГНОСТИКА: ПОЛУЧАЕМ ID ПОЛЬЗОВАТЕЛЯ ИЗ TELEGRAM ---
                 let telegramUserId = null;
