@@ -317,28 +317,8 @@
                 }
                 alert("Діагностика: ID користувача з Telegram - " + telegramUserId);
 
-                // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
-                const workerUrl = '[https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev](https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev)'; // ВАЖНО: ВСТАВЬ СЮДА СВОЮ ССЫЛКУ
-
-                fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegramUserId: telegramUserId,
-                        id: this.lastResultData.id,
-                        title: this.lastResultData.title,
-                        score: this.lastResultData.score,
-                        interp: this.lastResultData.interp,
-                        date: this.lastResultData.date
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert("Відповідь від сервера: " + JSON.stringify(data));
-                })
-                .catch(err => {
-                    alert("Критична помилка відправки: " + err);
-                });
+               // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
+                const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
 
                 document.getElementById('result-score').textContent = totalScore;
                 document.getElementById('result-interp').textContent = interpretation;
