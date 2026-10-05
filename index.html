@@ -729,30 +729,76 @@
             },
 
             submitTest() {
-                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                let totalScore = 0;
-                
-                inputs.forEach((input) => {
-                    totalScore += parseInt(input.value);
-                });
-                
-                const interpretation = this.currentTest.interpret(totalScore);
-                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
+    try {
+        const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+        let totalScore = 0;
+        
+        inputs.forEach((input) => {
+            totalScore += parseInt(input.value);
+        });
+        
+        const interpretation = this.currentTest.interpret(totalScore);
+        const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
 
-                this.lastResultData = {
-                    title: this.currentTest.title,
-                    id: this.participantId,
-                    score: totalScore,
-                    interp: interpretation,
-                    picture: clinicalPicture,
-                    date: new Date().toLocaleString()
-                };
+        this.lastResultData = {
+            title: this.currentTest.title,
+            id: this.participantId,
+            score: totalScore,
+            interp: interpretation,
+            picture: clinicalPicture,
+            date: new Date().toLocaleString()
+        };
 
-                // --- ПОЛУЧАЕМ TELEGRAM USER ID ---
-                let telegramUserId = null;
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
-                }
+        // Получаем Telegram ID пользователя, если приложение открыто в Telegram
+        let telegramUserId = null;
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+            telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
+        }
+
+        // 1. Сразу переключаем экран на результаты, чтобы видеть, что кнопка работает
+        document.getElementById('result-score').textContent = totalScore;
+        document.getElementById('result-interp').textContent = interpretation;
+        document.getElementById('clinical-summary').innerHTML = '<span style="color: blue;">Відправка результатів на сервер... зачекайте.</span>';
+        
+        this.switchView('view-result');
+        window.scrollTo(0, 0);
+
+        // 2. Делаем запрос к твоему Cloudflare Worker
+        const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+
+        fetch(workerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                telegramUserId: telegramUserId,
+                id: this.lastResultData.id,
+                title: this.lastResultData.title,
+                score: this.lastResultData.score,
+                interp: this.lastResultData.interp,
+                date: this.lastResultData.date
+            })
+        })
+        .then(response => response.text()) // Читаем ответ сервера как текст
+        .then(data => {
+            // 3. УСПЕХ: Выводим ответ сервера прямо на страницу
+            document.getElementById('clinical-summary').innerHTML = `
+                <b style="color: green;">Відповідь сервера:</b> ${data} <br><br>
+                <b>Оригінальний висновок:</b><br>${clinicalPicture}
+            `;
+        })
+        .catch(err => {
+            // 4. ОШИБКА: Выводим ошибку, если запрос сломался
+            document.getElementById('clinical-summary').innerHTML = `
+                <b style="color: red;">Помилка відправки:</b> ${err.message} <br><br>
+                <b>Оригінальний висновок:</b><br>${clinicalPicture}
+            `;
+        });
+
+    } catch (globalError) {
+        // Если в самом коде есть синтаксическая ошибка, покажем её
+        document.getElementById('test-description').textContent = "Критическая ошибка: " + globalError.message;
+    }
+}
 
                 // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
                 const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; // ЗАМЕНИ НА СВОЙ URL WORKER!
