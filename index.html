@@ -728,103 +728,121 @@
                 }
             },
 
+            // Новая функция: генерирует содержимое Word-документа
+            getWordDocumentContent() {
+                if (!this.lastResultData) return "";
+                return `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+                <head><meta charset="utf-8"><title>Психологічний висновок</title></head>
+                <body style="font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.5; padding: 20px;">
+                    <h2 style="text-align: center; color: #2563eb;">ПСИХОЛОГІЧНИЙ ВИСНОВОК ДОСЛІДЖЕННЯ</h2>
+                    <p><strong>Дата проведення:</strong> ${this.lastResultData.date}</p>
+                    <p><strong>ID учасника:</strong> ${this.lastResultData.id}</p>
+                    <p><strong>Методика:</strong> ${this.lastResultData.title}</p>
+                    <hr style="border: 1px solid #cbd5e1; margin: 15px 0;">
+                    
+                    <h3>1. Кількісні результати</h3>
+                    <p><strong>Загальний бал:</strong> ${this.lastResultData.score}</p>
+                    <p><strong>Інтерпретація:</strong> ${this.lastResultData.interp}</p>
+                    
+                    <h3>2. Загальна психологічна картина</h3>
+                    <p style="white-space: pre-line;">${this.lastResultData.picture}</p>
+
+                    <br><br>
+                    <hr style="border: 0.5px solid #cbd5e1; margin: 15px 0;">
+                    <p style="font-size: 10pt; text-align: center; color: #64748b;">
+                        &copy; 2026 Shimon Goldfield. All Rights Reserved. Protected under International Copyright & Patent Laws.
+                    </p>
+                </body>
+                </html>`;
+            },
+
             submitTest() {
-    try {
-        const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-        let totalScore = 0;
-        
-        inputs.forEach((input) => {
-            totalScore += parseInt(input.value);
-        });
-        
-        const interpretation = this.currentTest.interpret(totalScore);
-        const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
+                try {
+                    const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+                    let totalScore = 0;
+                    
+                    inputs.forEach((input) => {
+                        totalScore += parseInt(input.value);
+                    });
+                    
+                    const interpretation = this.currentTest.interpret(totalScore);
+                    const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
 
-        this.lastResultData = {
-            title: this.currentTest.title,
-            id: this.participantId,
-            score: totalScore,
-            interp: interpretation,
-            picture: clinicalPicture,
-            date: new Date().toLocaleString()
-        };
+                    this.lastResultData = {
+                        title: this.currentTest.title,
+                        id: this.participantId,
+                        score: totalScore,
+                        interp: interpretation,
+                        picture: clinicalPicture,
+                        date: new Date().toLocaleString()
+                    };
 
-        // Получаем Telegram ID пользователя, если приложение открыто в Telegram
-        let telegramUserId = null;
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-            telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
-        }
+                    // Получаем Telegram ID пользователя
+                    let telegramUserId = null;
+                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                        telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
+                    }
 
-        // 1. Сразу переключаем экран на результаты, чтобы видеть, что кнопка работает
-        document.getElementById('result-score').textContent = totalScore;
-        document.getElementById('result-interp').textContent = interpretation;
-        document.getElementById('clinical-summary').innerHTML = '<span style="color: blue;">Відправка результатів на сервер... зачекайте.</span>';
-        
-        this.switchView('view-result');
-        window.scrollTo(0, 0);
+                    // Переключаем экран на результаты
+                    document.getElementById('result-score').textContent = totalScore;
+                    document.getElementById('result-interp').textContent = interpretation;
+                    document.getElementById('clinical-summary').innerHTML = '<span style="color: blue;">Відправка результатів у Telegram... зачекайте.</span>';
+                    
+                    this.switchView('view-result');
+                    window.scrollTo(0, 0);
 
-        // 2. Делаем запрос к твоему Cloudflare Worker
-        const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
 
-        fetch(workerUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegramUserId: telegramUserId,
-                id: this.lastResultData.id,
-                title: this.lastResultData.title,
-                score: this.lastResultData.score,
-                interp: this.lastResultData.interp,
-                date: this.lastResultData.date
-            })
-        })
-        .then(response => response.text()) // Читаем ответ сервера как текст
-        .then(data => {
-            // 3. УСПЕХ: Выводим ответ сервера прямо на страницу
-            document.getElementById('clinical-summary').innerHTML = `
-                <b style="color: green;">Відповідь сервера:</b> ${data} <br><br>
-                <b>Оригінальний висновок:</b><br>${clinicalPicture}
-            `;
-        })
-        .catch(err => {
-            // 4. ОШИБКА: Выводим ошибку, если запрос сломался
-            document.getElementById('clinical-summary').innerHTML = `
-                <b style="color: red;">Помилка відправки:</b> ${err.message} <br><br>
-                <b>Оригінальний висновок:</b><br>${clinicalPicture}
-            `;
-        });
+                    // Отправляем данные на сервер, ВКЛЮЧАЯ код Word-документа
+                    fetch(workerUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegramUserId: telegramUserId,
+                            id: this.lastResultData.id,
+                            title: this.lastResultData.title,
+                            score: this.lastResultData.score,
+                            interp: this.lastResultData.interp,
+                            date: this.lastResultData.date,
+                            // Вот здесь мы передаем готовый файл текстом!
+                            wordDocumentBody: this.getWordDocumentContent()
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('clinical-summary').innerHTML = `
+                            <b style="color: green;">Успішно! Результати відправлено вам у бот.</b><br><br>
+                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
+                        `;
+                    })
+                    .catch(err => {
+                        document.getElementById('clinical-summary').innerHTML = `
+                            <b style="color: red;">Помилка відправки:</b> ${err.message} <br><br>
+                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
+                        `;
+                    });
 
-    } catch (globalError) {
-        // Если в самом коде есть синтаксическая ошибка, покажем её
-        document.getElementById('test-description').textContent = "Критическая ошибка: " + globalError.message;
-    }
-}
+                } catch (globalError) {
+                    document.getElementById('test-description').textContent = "Критическая ошибка: " + globalError.message;
+                }
+            },
 
-                // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
-                const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; // ЗАМЕНИ НА СВОЙ URL WORKER!
+            downloadWord() {
+                if (!this.lastResultData) return;
+                
+                // Используем ту же функцию для скачивания вручную
+                const content = this.getWordDocumentContent();
 
-               // Отправка данных на Cloudflare Worker с выводом ответа на экран
-fetch(workerUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        telegramUserId: telegramUserId,
-        id: this.lastResultData.id,
-        title: this.lastResultData.title,
-        score: this.lastResultData.score,
-        interp: this.lastResultData.interp,
-        date: this.lastResultData.date
-    })
-})
-.then(response => response.json())
-.then(data => {
-    // Выводим ответ от сервера во всплывающем окне
-    alert("Ответ сервера: " + JSON.stringify(data));
-})
-.catch(err => {
-    // Выводим ошибку, если запрос вообще не ушел
-    alert('Помилка відправки: ' + err.message);
-});
+                const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Psychological_Report_${this.lastResultData.id}.doc`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            },
             downloadWord() {
                 if (!this.lastResultData) return;
                 
