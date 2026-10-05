@@ -790,11 +790,16 @@
                     this.switchView('view-result');
                     window.scrollTo(0, 0);
 
-                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+                    // Добавили слеш (/) в конец ссылки — иногда это решает проблему редиректов
+                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev/';
 
                     fetch(workerUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        mode: 'cors', // Явно говорим браузеру использовать правила CORS
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json, text/plain, */*'
+                        },
                         body: JSON.stringify({
                             telegramUserId: telegramUserId,
                             id: this.lastResultData.id,
@@ -802,17 +807,32 @@
                             score: this.lastResultData.score,
                             interp: this.lastResultData.interp,
                             date: this.lastResultData.date,
-                            wordDocumentBody: this.getWordDocumentContent() // Отправляем документ текстом
+                            wordDocumentBody: this.getWordDocumentContent()
                         })
                     })
-                    .then(response => response.text())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Помилка сервера: ' + response.status);
+                        }
+                        return response.text();
+                    })
                     .then(data => {
+                        // Показываем родное уведомление Telegram
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.showAlert("Успішно відправлено!");
+                        }
+                        
                         document.getElementById('clinical-summary').innerHTML = `
-                            <b style="color: green;">Успішно! Результати відправлено. Відповідь сервера:</b> ${data} <br><br>
+                            <b style="color: green;">Успішно! Відповідь сервера:</b> ${data} <br><br>
                             <b>Оригінальний висновок:</b><br>${clinicalPicture}
                         `;
                     })
                     .catch(err => {
+                        // Если ошибка Failed to fetch останется, Telegram покажет её прямо по центру экрана
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.showAlert("Помилка мережі: " + err.message);
+                        }
+
                         document.getElementById('clinical-summary').innerHTML = `
                             <b style="color: red;">Помилка відправки:</b> ${err.message} <br><br>
                             <b>Оригінальний висновок:</b><br>${clinicalPicture}
