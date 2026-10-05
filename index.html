@@ -731,68 +731,85 @@
             },
 
             submitTest() {
-                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                let totalScore = 0;
-                
-                inputs.forEach((input) => {
-                    totalScore += parseInt(input.value);
-                });
-                
-                const interpretation = this.currentTest.interpret(totalScore);
-                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
+    const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+    let totalScore = 0;
+    
+    inputs.forEach((input) => {
+        totalScore += parseInt(input.value);
+    });
+    
+    const interpretation = this.currentTest.interpret(totalScore);
+    const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
 
-                this.lastResultData = {
-                    title: this.currentTest.title,
-                    id: this.participantId,
-                    score: totalScore,
-                    interp: interpretation,
-                    picture: clinicalPicture,
-                    date: new Date().toLocaleString()
-                };
+    this.lastResultData = {
+        title: this.currentTest.title,
+        id: this.participantId,
+        score: totalScore,
+        interp: interpretation,
+        picture: clinicalPicture,
+        date: new Date().toLocaleString()
+    };
 
-                // --- ПОЛУЧАЕМ TELEGRAM USER ID ---
-                let telegramUserId = null;
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
-                }
+    // --- ПОЛУЧАЕМ TELEGRAM ID И МАСКИРУЕМ ИМЯ ---
+    let telegramUserId = null;
+    let maskedName = "Анонімний користувач";
 
-                // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
-                const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; 
-                const statusMsg = document.getElementById('bot-status-msg');
-                statusMsg.textContent = 'Відправляємо результати у ваш Telegram-бот...';
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+        if (tgUser) {
+            telegramUserId = tgUser.id;
+            
+            // Создаем зашифрованное/замаскированное имя (например: Имя П. + хэш или звёздочки для приватности)
+            const rawName = tgUser.first_name || "Користувач";
+            const rawLastName = tgUser.last_name ? ` ${tgUser.last_name[0]}.` : "";
+            const secureHash = Math.abs(telegramUserId).toString(36).substring(0, 4).toUpperCase();
+            
+            maskedName = `🔒 ${rawName}${rawLastName} [ID-hash: ${secureHash}]`;
+        }
+    }
 
-                fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegramUserId: telegramUserId,
-                        id: this.lastResultData.id,
-                        title: this.lastResultData.title,
-                        score: this.lastResultData.score,
-                        interp: this.lastResultData.interp,
-                        picture: this.lastResultData.picture,
-                        date: this.lastResultData.date
-                    })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        statusMsg.textContent = '✅ Результати успішно надіслані вам у бот!';
-                    } else {
-                        statusMsg.textContent = '⚠️ Не вдалося надіслати в бот (перевірте Worker).';
-                    }
-                })
-                .catch(err => {
-                    console.error('Помилка відправки:', err);
-                    statusMsg.textContent = '❌ Помилка мережі при відправці в бот.';
-                });
+    const workerUrl = 'https://muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+    const statusMsg = document.getElementById('bot-status-msg');
+    statusMsg.textContent = 'Відправляємо результати у ваш Telegram-бот...';
 
-                document.getElementById('result-score').textContent = totalScore;
-                document.getElementById('result-interp').textContent = interpretation;
-                document.getElementById('clinical-summary').textContent = clinicalPicture;
+    if (!telegramUserId) {
+        statusMsg.textContent = '⚠️ Telegram ID не знайдено (відкрито не в Telegram). Результати збережено локально.';
+    } else {
+        fetch(workerUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                telegramUserId: telegramUserId,
+                userName: maskedName, // Передаем замаскированное имя
+                id: this.lastResultData.id,
+                title: this.lastResultData.title,
+                score: this.lastResultData.score,
+                interp: this.lastResultData.interp,
+                picture: this.lastResultData.picture,
+                date: this.lastResultData.date
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                statusMsg.textContent = '✅ Результати успішно надіслані вам у бот!';
+            } else {
+                statusMsg.textContent = '⚠️ Помилка сервера при відправці.';
+            }
+        })
+        .catch(err => {
+            console.error('Помилка мережі:', err);
+            statusMsg.textContent = '❌ Помилка мережі при відправці в бот.';
+        });
+    }
 
-                this.switchView('view-result');
-                window.scrollTo(0, 0);
-            },
+    document.getElementById('result-score').textContent = totalScore;
+    document.getElementById('result-interp').textContent = interpretation;
+    document.getElementById('clinical-summary').textContent = clinicalPicture;
+
+    this.switchView('view-result');
+    window.scrollTo(0, 0);
+}
 
             downloadWord() {
                 if (!this.lastResultData) return;
