@@ -757,7 +757,9 @@
                 }
 
                 // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
-                const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; 
+                const workerUrl = // ✅ ПРАВИЛЬНО:
+const workerUrl = 'https://muddy-boat-4d78.nikita-tkachen2002.workers.dev';
+; 
                 const statusMsg = document.getElementById('bot-status-msg');
                 statusMsg.textContent = 'Відправляємо результати у ваш Telegram-бот...';
 
