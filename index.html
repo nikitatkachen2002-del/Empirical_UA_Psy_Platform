@@ -730,7 +730,7 @@
                 }
             },
 
-            submitTest() {
+           submitTest() {
     const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
     let totalScore = 0;
     
@@ -750,57 +750,33 @@
         date: new Date().toLocaleString()
     };
 
-    // --- ПОЛУЧАЕМ TELEGRAM ID И МАСКИРУЕМ ИМЯ ---
-    let telegramUserId = null;
-    let maskedName = "Анонімний користувач";
-
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-        if (tgUser) {
-            telegramUserId = tgUser.id;
-            
-            // Создаем зашифрованное/замаскированное имя (например: Имя П. + хэш или звёздочки для приватности)
-            const rawName = tgUser.first_name || "Користувач";
-            const rawLastName = tgUser.last_name ? ` ${tgUser.last_name[0]}.` : "";
-            const secureHash = Math.abs(telegramUserId).toString(36).substring(0, 4).toUpperCase();
-            
-            maskedName = `🔒 ${rawName}${rawLastName} [ID-hash: ${secureHash}]`;
-        }
-    }
-
-    const workerUrl = 'https://muddy-boat-4d78.nikita-tkachen2002.workers.dev';
     const statusMsg = document.getElementById('bot-status-msg');
-    statusMsg.textContent = 'Відправляємо результати у ваш Telegram-бот...';
+    statusMsg.textContent.textContent = 'Формуємо дані для відправки...';
 
-    if (!telegramUserId) {
-        statusMsg.textContent = '⚠️ Telegram ID не знайдено (відкрито не в Telegram). Результати збережено локально.';
-    } else {
-        fetch(workerUrl, {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegramUserId: telegramUserId,
-                userName: maskedName, // Передаем замаскированное имя
-                id: this.lastResultData.id,
-                title: this.lastResultData.title,
-                score: this.lastResultData.score,
-                interp: this.lastResultData.interp,
-                picture: this.lastResultData.picture,
-                date: this.lastResultData.date
-            })
-        })
-        .then(response => {
-            if (response.ok) {
-                statusMsg.textContent = '✅ Результати успішно надіслані вам у бот!';
-            } else {
-                statusMsg.textContent = '⚠️ Помилка сервера при відправці.';
+    // Формируем текст отчета для отправки в бот
+    const reportText = `📋 Результати тестування: ${this.lastResultData.title}%0A` +
+                       `🆔 ID: ${this.lastResultData.id}%0A` +
+                       `📊 Бали: ${this.lastResultData.score}%0A` +
+                       `📝 Висновок: ${this.lastResultData.interp}`;
+
+    // Проверяем, запущен ли мини-апп в Telegram, и отправляем данные через встроенный механизм
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        // Метод 1: Передача данных боту через закрытие WebApp (если бот открыл его через Inline кнопку)
+        if (tg.sendData) {
+            try {
+                tg.sendData(JSON.stringify(this.lastResultData));
+                statusMsg.textContent = '✅ Результати передано в бот!';
+            } catch (e) {
+                console.error(e);
             }
-        })
-        .catch(err => {
-            console.error('Помилка мережі:', err);
-            statusMsg.textContent = '❌ Помилка мережі при відправці в бот.';
-        });
+        } else {
+            // Метод 2: Резервный вариант через открытие ссылки-бота с текстом
+            window.location.href = `https://t.me/Psy_Ua_bot?start=${encodeURIComponent(this.lastResultData.id)}`;
+        }
+    } else {
+        statusMsg.textContent = '⚠️️ Відкрито поза Telegram. Результати збережено локально.';
     }
 
     document.getElementById('result-score').textContent = totalScore;
