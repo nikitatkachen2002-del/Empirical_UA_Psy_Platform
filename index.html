@@ -757,7 +757,7 @@
                 </html>`;
             },
 
-            submitTest() {
+            async submitTest() {
                 try {
                     const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
                     let totalScore = 0;
@@ -790,54 +790,60 @@
                     this.switchView('view-result');
                     window.scrollTo(0, 0);
 
-                    // Добавили слеш (/) в конец ссылки — иногда это решает проблему редиректов
                     const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev/';
 
-                    fetch(workerUrl, {
-                        method: 'POST',
-                        mode: 'cors', // Явно говорим браузеру использовать правила CORS
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json, text/plain, */*'
-                        },
-                        body: JSON.stringify({
-                            telegramUserId: telegramUserId,
-                            id: this.lastResultData.id,
-                            title: this.lastResultData.title,
-                            score: this.lastResultData.score,
-                            interp: this.lastResultData.interp,
-                            date: this.lastResultData.date,
-                            wordDocumentBody: this.getWordDocumentContent()
-                        })
-                    })
-                    .then(response => {
+                    // Используем современный и надежный способ отправки через await
+                    try {
+                        const response = await fetch(workerUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { 
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                telegramUserId: telegramUserId,
+                                id: this.lastResultData.id,
+                                title: this.lastResultData.title,
+                                score: this.lastResultData.score,
+                                interp: this.lastResultData.interp,
+                                date: this.lastResultData.date,
+                                wordDocumentBody: this.getWordDocumentContent()
+                            })
+                        });
+
                         if (!response.ok) {
-                            throw new Error('Помилка сервера: ' + response.status);
+                            throw new Error(`Сервер повернув помилку, статус: ${response.status}`);
                         }
-                        return response.text();
-                    })
-                    .then(data => {
-                        // Показываем родное уведомление Telegram
+
+                        const responseText = await response.text();
+
                         if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.showAlert("Успішно відправлено!");
-                        }
-                        
-                        document.getElementById('clinical-summary').innerHTML = `
-                            <b style="color: green;">Успішно! Відповідь сервера:</b> ${data} <br><br>
-                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
-                        `;
-                    })
-                    .catch(err => {
-                        // Если ошибка Failed to fetch останется, Telegram покажет её прямо по центру экрана
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.showAlert("Помилка мережі: " + err.message);
+                            window.Telegram.WebApp.showAlert("Успешно отправлено в бот!");
                         }
 
                         document.getElementById('clinical-summary').innerHTML = `
-                            <b style="color: red;">Помилка відправки:</b> ${err.message} <br><br>
+                            <b style="color: green;">Успішно! Відповідь сервера:</b> ${responseText} <br><br>
                             <b>Оригінальний висновок:</b><br>${clinicalPicture}
                         `;
-                    });
+
+                    } catch (fetchError) {
+                        // Ошибка сети или блокировка браузера попадают сюда
+                        console.error("Деталі мережевої помилки:", fetchError);
+                        
+                        let userMessage = fetchError.message;
+                        if (userMessage === "Failed to fetch") {
+                            userMessage = "Failed to fetch (Блокування мережі, перевір протокол https:// або налаштування хостингу)";
+                        }
+
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.showAlert("Помилка: " + userMessage);
+                        }
+
+                        document.getElementById('clinical-summary').innerHTML = `
+                            <b style="color: red;">Помилка відправки:</b> ${userMessage} <br><br>
+                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
+                        `;
+                    }
 
                 } catch (globalError) {
                     document.getElementById('test-description').textContent = "Критическая ошибка: " + globalError.message;
