@@ -757,42 +757,15 @@
                 </html>`;
             },
 
-            async submitTest() {
-                try {
-                    const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                    let totalScore = 0;
-                    
-                    inputs.forEach((input) => {
-                        totalScore += parseInt(input.value);
-                    });
-                    
-                    const interpretation = this.currentTest.interpret(totalScore);
-                    const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
-
-                    this.lastResultData = {
-                        title: this.currentTest.title,
-                        id: this.participantId,
-                        score: totalScore,
-                        interp: interpretation,
-                        picture: clinicalPicture,
-                        date: new Date().toLocaleString()
-                    };
-
-                    let telegramUserId = null;
-                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                        telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
-                    }
-
-                    document.getElementById('result-score').textContent = totalScore;
+           document.getElementById('result-score').textContent = totalScore;
                     document.getElementById('result-interp').textContent = interpretation;
                     document.getElementById('clinical-summary').innerHTML = '<span style="color: blue;">Відправка результатів на сервер... зачекайте.</span>';
                     
                     this.switchView('view-result');
                     window.scrollTo(0, 0);
 
-                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev/';
+                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
 
-                    // Используем современный и надежный способ отправки через await
                     try {
                         const response = await fetch(workerUrl, {
                             method: 'POST',
@@ -827,12 +800,11 @@
                         `;
 
                     } catch (fetchError) {
-                        // Ошибка сети или блокировка браузера попадают сюда
                         console.error("Деталі мережевої помилки:", fetchError);
                         
                         let userMessage = fetchError.message;
                         if (userMessage === "Failed to fetch") {
-                            userMessage = "Failed to fetch (Блокування мережі, перевір протокол https:// або налаштування хостингу)";
+                            userMessage = "Failed to fetch (Блокування мережі. Перевір, чи завантажений HTML-файл на HTTPS-хостинг, а не відкритий з комп'ютера)";
                         }
 
                         if (window.Telegram && window.Telegram.WebApp) {
@@ -844,11 +816,6 @@
                             <b>Оригінальний висновок:</b><br>${clinicalPicture}
                         `;
                     }
-
-                } catch (globalError) {
-                    document.getElementById('test-description').textContent = "Критическая ошибка: " + globalError.message;
-                }
-            },
 
             downloadWord() {
                 if (!this.lastResultData) return;
