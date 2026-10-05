@@ -408,21 +408,76 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(payload)
+                    })submitTest() {
+                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+                let totalScore = 0;
+                
+                inputs.forEach((input) => {
+                    totalScore += parseInt(input.value);
+                });
+                
+                const interpretation = this.currentTest.interpret(totalScore);
+                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
+
+                this.lastResultData = {
+                    title: this.currentTest.title,
+                    id: this.participantId,
+                    score: totalScore,
+                    interp: interpretation,
+                    picture: clinicalPicture,
+                    date: new Date().toLocaleString()
+                };
+
+                const statusMsg = document.getElementById('bot-status-msg');
+                statusMsg.textContent = 'Формуємо дані для відправки...';
+
+                let telegramUserId = null;
+                let userName = "Анонім";
+
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
+                    userName = window.Telegram.WebApp.initDataUnsafe.user.first_name || window.Telegram.WebApp.initDataUnsafe.user.username || "Користувач";
+                }
+
+                const payload = {
+                    ...this.lastResultData,
+                    telegramUserId: telegramUserId,
+                    userName: userName
+                };
+
+                // ВНИМАНИЕ: Убедись, что тут стоит ссылка на твой Cloudflare Worker
+                const WORKER_URL = "muddy-boat-4d78.nikita-tkachen2002.workers.dev";
+
+                if (telegramUserId) {
+                    fetch(WORKER_URL, {
+                        method: 'POST',
+                        cache: 'no-store', // Жестко запрещаем кэширование
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
                     })
-                    .then(response => response.json())
+                    .then(async response => {
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Помилка сервера ${response.status}: ${errorText}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
-                            statusMsg.textContent = '✅ Результати успішно передано в бот!';
+                            statusMsg.innerHTML = '<span style="color: #059669;">✅ Результати успішно передано в бот!</span>';
                         } else {
-                            statusMsg.textContent = '⚠ Помилка відправки: ' + (data.error || 'Невідома помилка');
+                            statusMsg.innerHTML = `<span style="color: #d97706;">⚠ Відповідь сервера: ${data.error || 'Невідома помилка'}</span>`;
                         }
                     })
                     .catch(error => {
-                        console.error('Помилка fetch:', error);
-                        statusMsg.textContent = '⚠ Не вдалося зв\'язатися з сервером.';
+                        console.error('Детальна помилка fetch:', error);
+                        // Выводим точную техническую причину сбоя
+                        statusMsg.innerHTML = `<span style="color: #dc2626;">❌ Технічна помилка: ${error.message}</span>`;
                     });
                 } else {
-                    statusMsg.textContent = '⚠ Відкрито поза Telegram. Результати збережено локально (не відправлено в бот).';
+                    statusMsg.textContent = '⚠ Відкрито поза Telegram. Результати збережено локально.';
                 }
 
                 document.getElementById('result-score').textContent = totalScore;
@@ -431,53 +486,7 @@
 
                 this.switchView('view-result');
                 window.scrollTo(0, 0);
-            },
-
-            downloadWord() {
-                if (!this.lastResultData) return;
-                
-                const content = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-                <head><meta charset="utf-8"><title>Психологічний висновок</title></head>
-                <body style="font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.5; padding: 20px;">
-                    <h2 style="text-align: center; color: #2563eb;">ПСИХОЛОГІЧНИЙ ВИСНОВОК ДОСЛІДЖЕННЯ</h2>
-                    <p><strong>Дата проведення:</strong> ${this.lastResultData.date}</p>
-                    <p><strong>ID учасника:</strong> ${this.lastResultData.id}</p>
-                    <p><strong>Методика:</strong> ${this.lastResultData.title}</p>
-                    <hr style="border: 1px solid #cbd5e1; margin: 15px 0;">
-                    
-                    <h3>1. Кількісні результати</h3>
-                    <p><strong>Загальний бал:</strong> ${this.lastResultData.score}</p>
-                    <p><strong>Інтерпретація:</strong> ${this.lastResultData.interp}</p>
-                    
-                    <h3>2. Загальна психологічна картина</h3>
-                    <p style="white-space: pre-line;">${this.lastResultData.picture}</p>
-
-                    <br><br>
-                    <hr style="border: 0.5px solid #cbd5e1; margin: 15px 0;">
-                    <p style="font-size: 10pt; text-align: center; color: #64748b;">
-                        &copy; 2026 Shimon Goldfield. All Rights Reserved. Protected under International Copyright & Patent Laws.
-                    </p>
-                </body>
-                </html>`;
-
-                const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Psychological_Report_${this.lastResultData.id}.doc`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            },
-
-            switchView(viewId) {
-                ['view-consent', 'view-demographics', 'view-dashboard', 'view-test', 'view-result'].forEach(id => {
-                    document.getElementById(id).classList.add('hidden');
-                });
-                document.getElementById(viewId).classList.remove('hidden');
             }
-        };
 
         window.onload = () => app.init();
     </script>
