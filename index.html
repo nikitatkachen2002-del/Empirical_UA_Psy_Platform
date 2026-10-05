@@ -164,6 +164,8 @@
                     <h3 style="margin-bottom: 0.5rem; margin-top: 1.5rem;">Загальна психологічна картина (Клінічний висновок)</h3>
                     <div id="clinical-summary" style="color: #334155; line-height: 1.7; white-space: pre-line;"></div>
                 </div>
+
+                <div id="bot-status-msg" style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--success); font-weight: 500;"></div>
                 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
                     <button class="btn" onclick="app.downloadWord()">📄 Завантажити звіт у форматі Word (.doc)</button>
@@ -213,9 +215,9 @@
                     let level = score <= 4 ? "мінімальний" : score <= 9 ? "легкий" : score <= 14 ? "помірний" : score <= 19 ? "виражений" : "тяжкий";
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років, стать: ${demo.gender}):
-• Емоційний стан: За результатами скринінгу PHQ-9 виявлено ${level} рівень вираженості депресивної симптоматики (загальний бал — ${score}).
-• Афективна та соматовегетативна сфера: Відзначаються зміни в енергетичному балансі, якості сну та рівні повсякденної мотивації.
-• Рекомендації: Проведення клінічного інтерв'ю та динамічне спостереження за станом психологічного благополуччя.`;
+- Емоційний стан: За результатами скринінгу PHQ-9 виявлено ${level} рівень вираженості депресивної симптоматики (загальний бал — ${score}).
+- Афективна та соматовегетативна сфера: Відзначаються зміни в енергетичному балансі, якості сну та рівні повсякденної мотивації.
+- Рекомендації: Проведення клінічного інтерв'ю та динамічне спостереження за станом психологічного благополуччя.`;
                 }
             },
             {
@@ -256,9 +258,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Шкала депресії Бека (BDI-II): Сумарний бал становить ${score}.
-• Когнітивно-поведінковий аналіз: Дослідження виявило специфічні симптоми депресивної спрямованості, що охоплюють афективні, мотиваційні та соматичні прояви.
-• Рекомендації: Когнітивно-поведінкова психотерапія, орієнтована на опрацювання негативних когнітивних схем та активацію поведінки.`;
+- Шкала депресії Бека (BDI-II): Сумарний бал становить ${score}.
+- Когнітивно-поведінковий аналіз: Дослідження виявило специфічні симптоми депресивної спрямованості, що охоплюють афективні, мотиваційні та соматичні прояви.
+- Рекомендації: Когнітивно-поведінкова психотерапія, орієнтована на опрацювання негативних когнітивних схем та активацію поведінки.`;
                 }
             },
             {
@@ -289,9 +291,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Госпітальна шкала HADS: Сумарний бал — ${score}.
-• Особливості емоційного реагування: Оцінено баланс між проявами тривожної та афективної симптоматики.
-• Рекомендації: Моніторинг рівня стресу, нормалізація режиму праці та відпочинку.`;
+- Госпітальна шкала HADS: Сумарний бал — ${score}.
+- Особливості емоційного реагування: Оцінено баланс між проявами тривожної та афективної симптоматики.
+- Рекомендації: Моніторинг рівня стресу, нормалізація режиму праці та відпочинку.`;
                 }
             },
             {
@@ -323,9 +325,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Тривожний спектр (GAD-7): Сумарний бал — ${score}.
-• Особливості стану: Спостерігається підвищене психофізіологічне напруження, труднощі з контролем занепокоєння.
-• Рекомендації: Навчання технікам діафрагмального дихання, прогресивної м'язової релаксації та робота з когнітивним переструктуруванням.`;
+- Тривожний спектр (GAD-7): Сумарний бал — ${score}.
+- Особливості стану: Спостерігається підвищене психофізіологічне напруження, труднощі з контролем занепокоєння.
+- Рекомендації: Навчання технікам діафрагмального дихання, прогресивної м'язової релаксації та робота з когнітивним переструктуруванням.`;
                 }
             },
             {
@@ -355,9 +357,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Шкала Спілбергера-Ханіна: Сумарний бал — ${score}.
-• Диференціація: Оцінено співвідношення реактивної (ситуативної) тривоги як відповіді на поточні події та особистісної тривожності як стійкої схильності.
-• Рекомендації: Зниження поточного когнітивного навантаження та розвиток навичок стресостійкості.`;
+- Шкала Спілбергера-Ханіна: Сумарний бал — ${score}.
+- Диференціація: Оцінено співвідношення реактивної (ситуативної) тривоги як відповіді на поточні події та особистісної тривожності як стійкої схильності.
+- Рекомендації: Зниження поточного когнітивного навантаження та розвиток навичок стресостійкості.`;
                 }
             },
             {
@@ -390,9 +392,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Шкала тривоги Бека (BAI): Сумарний бал — ${score}.
-• Соматичний компонент: Акцент зроблено на виявленні фізіологічних та тілесних проявів тривожного розладу.
-• Рекомендації: Робота з тілесними блоками, релаксаційні техніки та консультація лікаря за потреби.`;
+- Шкала тривоги Бека (BAI): Сумарний бал — ${score}.
+- Соматичний компонент: Акцент зроблено на виявленні фізіологічних та тілесних проявів тривожного розладу.
+- Рекомендації: Робота з тілесними блоками, релаксаційні техніки та консультація лікаря за потреби.`;
                 }
             },
             {
@@ -430,9 +432,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Оцінка ПТСР (PCL-5): Загальний бал — ${score}.
-• Аналіз кластерів: Оцінювалися показники вторгнення, уникнення, негативних змін когніцій/настрою та гіперзбудливості.
-• Рекомендації: Спеціалізована травмофокусована психотерапія (наприклад, EMDR або КПТ травми) за умови перевищення клінічного порогу.`;
+- Оцінка ПТСР (PCL-5): Загальний бал — ${score}.
+- Аналіз кластерів: Оцінювалися показники вторгнення, уникнення, негативних змін когніцій/настрою та гіперзбудливості.
+- Рекомендації: Спеціалізована травмофокусована психотерапія (наприклад, EMDR або КПТ травми) за умови перевищення клінічного порогу.`;
                 }
             },
             {
@@ -462,9 +464,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Скринінг СДУГ (ASRS): ${score} позитивних відповідей із 6.
-• Особливості нейродинаміки: Труднощі з організацією діяльності, утриманням фокуса уваги та саморегуляцією.
-• Рекомендації: Розробка систем структурування завдань, тайм-менеджменту та стратегій адаптації робочого середовища.`;
+- Скринінг СДУГ (ASRS): ${score} позитивних відповідей із 6.
+- Особливості нейродинаміки: Труднощі з організацією діяльності, утриманням фокуса уваги та саморегуляцією.
+- Рекомендації: Розробка систем структурування завдань, тайм-менеджменту та стратегій адаптації робочого середовища.`;
                 }
             },
             {
@@ -501,9 +503,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Скринінг РАС (RAADS-14): Сумарний бал — ${score}.
-• Особливості комунікації: Аналіз соціальної взаємодії, сенсорної чутливості та дотримання рутинних патернів.
-• Рекомендації: Консультація профільного фахівця з питань нейровідмінностей для детальної діагностики та підтримки.`;
+- Скринінг РАС (RAADS-14): Сумарний бал — ${score}.
+- Особливості комунікації: Аналіз соціальної взаємодії, сенсорної чутливості та дотримання рутинних патернів.
+- Рекомендації: Консультація профільного фахівця з питань нейровідмінностей для детальної діагностики та підтримки.`;
                 }
             },
             {
@@ -531,9 +533,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Скринінг MDQ: Виявлено ${score} критеріїв із 7 можливих.
-• Афективна лабільність: Аналіз періодів надмірного піднесення енергії, змін у потребі сну та темпу мислення.
-• Рекомендації: Поглиблене клінічне інтерв'ю щодо стабільності настрою та циркадних ритмів.`;
+- Скринінг MDQ: Виявлено ${score} критеріїв із 7 можливих.
+- Афективна лабільність: Аналіз періодів надмірного піднесення енергії, змін у потребі сну та темпу мислення.
+- Рекомендації: Поглиблене клінічне інтерв'ю щодо стабільності настрою та циркадних ритмів.`;
                 }
             },
             {
@@ -561,9 +563,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Особистісний профіль (Big Five): Сумарний бал — ${score}.
-• Аналіз рис: Оцінка вираженості екстраверсії, нейротизму, сумлінності, доброзичливості та відкритості до нового досвіду.
-• Рекомендації: Використання особистісних ресурсів для професійного самовизначення та подолання стресу.`;
+- Особистісний профіль (Big Five): Сумарний бал — ${score}.
+- Аналіз рис: Оцінка вираженості екстраверсії, нейротизму, сумлінності, доброзичливості та відкритості до нового досвіду.
+- Рекомендації: Використання особистісних ресурсів для професійного самовизначення та подолання стресу.`;
                 }
             },
             {
@@ -597,9 +599,9 @@
                 getClinicalPicture: (score, demo) => {
                     let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
                     return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років):
-• Шкала Розенберга (RSES): Сумарний бал — ${score}.
-• Я-концепція: Визначено загальний рівень самоповаги, самоприйняття та стійкості внутрішньої самооцінки.
-• Рекомендації: Робота над зміцненням впевненості у власних силах та розвиток конструктивного самосприйняття.`;
+- Шкала Розенберга (RSES): Сумарний бал — ${score}.
+- Я-концепція: Визначено загальний рівень самоповаги, самоприйняття та стійкості внутрішньої самооцінки.
+- Рекомендації: Робота над зміцненням впевненості у власних силах та розвиток конструктивного самосприйняття.`;
                 }
             }
         ];
@@ -728,10 +730,74 @@
                 }
             },
 
-            // --- НОВАЯ ФУНКЦИЯ ДЛЯ WORD ДОКУМЕНТА ---
-            getWordDocumentContent() {
-                if (!this.lastResultData) return "";
-                return `
+            submitTest() {
+                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
+                let totalScore = 0;
+                
+                inputs.forEach((input) => {
+                    totalScore += parseInt(input.value);
+                });
+                
+                const interpretation = this.currentTest.interpret(totalScore);
+                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
+
+                this.lastResultData = {
+                    title: this.currentTest.title,
+                    id: this.participantId,
+                    score: totalScore,
+                    interp: interpretation,
+                    picture: clinicalPicture,
+                    date: new Date().toLocaleString()
+                };
+
+                // --- ПОЛУЧАЕМ TELEGRAM USER ID ---
+                let telegramUserId = null;
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : null;
+                }
+
+                // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
+                const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; 
+                const statusMsg = document.getElementById('bot-status-msg');
+                statusMsg.textContent = 'Відправляємо результати у ваш Telegram-бот...';
+
+                fetch(workerUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegramUserId: telegramUserId,
+                        id: this.lastResultData.id,
+                        title: this.lastResultData.title,
+                        score: this.lastResultData.score,
+                        interp: this.lastResultData.interp,
+                        picture: this.lastResultData.picture,
+                        date: this.lastResultData.date
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        statusMsg.textContent = '✅ Результати успішно надіслані вам у бот!';
+                    } else {
+                        statusMsg.textContent = '⚠️ Не вдалося надіслати в бот (перевірте Worker).';
+                    }
+                })
+                .catch(err => {
+                    console.error('Помилка відправки:', err);
+                    statusMsg.textContent = '❌ Помилка мережі при відправці в бот.';
+                });
+
+                document.getElementById('result-score').textContent = totalScore;
+                document.getElementById('result-interp').textContent = interpretation;
+                document.getElementById('clinical-summary').textContent = clinicalPicture;
+
+                this.switchView('view-result');
+                window.scrollTo(0, 0);
+            },
+
+            downloadWord() {
+                if (!this.lastResultData) return;
+                
+                const content = `
                 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
                 <head><meta charset="utf-8"><title>Психологічний висновок</title></head>
                 <body style="font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.5; padding: 20px;">
@@ -755,72 +821,7 @@
                     </p>
                 </body>
                 </html>`;
-            },
 
-           document.getElementById('result-score').textContent = totalScore;
-                    document.getElementById('result-interp').textContent = interpretation;
-                    document.getElementById('clinical-summary').innerHTML = '<span style="color: blue;">Відправка результатів на сервер... зачекайте.</span>';
-                    
-                    this.switchView('view-result');
-                    window.scrollTo(0, 0);
-
-                    const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev';
-
-                    try {
-                        const response = await fetch(workerUrl, {
-                            method: 'POST',
-                            mode: 'cors',
-                            headers: { 
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                telegramUserId: telegramUserId,
-                                id: this.lastResultData.id,
-                                title: this.lastResultData.title,
-                                score: this.lastResultData.score,
-                                interp: this.lastResultData.interp,
-                                date: this.lastResultData.date,
-                                wordDocumentBody: this.getWordDocumentContent()
-                            })
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`Сервер повернув помилку, статус: ${response.status}`);
-                        }
-
-                        const responseText = await response.text();
-
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.showAlert("Успешно отправлено в бот!");
-                        }
-
-                        document.getElementById('clinical-summary').innerHTML = `
-                            <b style="color: green;">Успішно! Відповідь сервера:</b> ${responseText} <br><br>
-                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
-                        `;
-
-                    } catch (fetchError) {
-                        console.error("Деталі мережевої помилки:", fetchError);
-                        
-                        let userMessage = fetchError.message;
-                        if (userMessage === "Failed to fetch") {
-                            userMessage = "Failed to fetch (Блокування мережі. Перевір, чи завантажений HTML-файл на HTTPS-хостинг, а не відкритий з комп'ютера)";
-                        }
-
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.showAlert("Помилка: " + userMessage);
-                        }
-
-                        document.getElementById('clinical-summary').innerHTML = `
-                            <b style="color: red;">Помилка відправки:</b> ${userMessage} <br><br>
-                            <b>Оригінальний висновок:</b><br>${clinicalPicture}
-                        `;
-                    }
-
-            downloadWord() {
-                if (!this.lastResultData) return;
-                
-                const content = this.getWordDocumentContent();
                 const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
