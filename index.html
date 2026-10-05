@@ -757,27 +757,28 @@
                 // --- ОТПРАВКА НА CLOUDFLARE WORKER ---
                 const workerUrl = 'https://psy-bot-sender.muddy-boat-4d78.nikita-tkachen2002.workers.dev'; // ЗАМЕНИ НА СВОЙ URL WORKER!
 
-                fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegramUserId: telegramUserId,
-                        id: this.lastResultData.id,
-                        title: this.lastResultData.title,
-                        score: this.lastResultData.score,
-                        interp: this.lastResultData.interp,
-                        date: this.lastResultData.date
-                    })
-                }).catch(err => console.error('Помилка відправки:', err));
-
-                document.getElementById('result-score').textContent = totalScore;
-                document.getElementById('result-interp').textContent = interpretation;
-                document.getElementById('clinical-summary').textContent = clinicalPicture;
-
-                this.switchView('view-result');
-                window.scrollTo(0, 0);
-            },
-
+               // Отправка данных на Cloudflare Worker с выводом ответа на экран
+fetch(workerUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        telegramUserId: telegramUserId,
+        id: this.lastResultData.id,
+        title: this.lastResultData.title,
+        score: this.lastResultData.score,
+        interp: this.lastResultData.interp,
+        date: this.lastResultData.date
+    })
+})
+.then(response => response.json())
+.then(data => {
+    // Выводим ответ от сервера во всплывающем окне
+    alert("Ответ сервера: " + JSON.stringify(data));
+})
+.catch(err => {
+    // Выводим ошибку, если запрос вообще не ушел
+    alert('Помилка відправки: ' + err.message);
+});
             downloadWord() {
                 if (!this.lastResultData) return;
                 
