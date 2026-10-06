@@ -1,514 +1,165 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Емпіричне Дослідження | Клінічна Психологія</title>
-    
-    <!-- ОФИЦИАЛЬНАЯ БИБЛИОТЕКА TELEGRAM MINI APPS -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <style>
-        :root { --bg: #f1f5f9; --text: #0f172a; --primary: #2563eb; --primary-hover: #1d4ed8; --card: #ffffff; --border: #cbd5e1; --success: #059669; --warning: #d97706; }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-user-drag: none; }
-        
-        body { 
-            background: var(--bg); color: var(--text); line-height: 1.6; display: flex; justify-content: center; padding: 2rem; min-height: 100vh; 
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none;
-        }
-
-        @media print {
-            html, body { display: none !important; opacity: 0 !important; visibility: hidden !important; background: white !important; }
-        }
-        
-        .app-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; justify-content: space-between; }
-        .card { background: var(--card); border-radius: 12px; padding: 2.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); transition: opacity 0.3s; }
-        h1, h2, h3 { color: var(--text); margin-bottom: 1.5rem; }
-        p { color: #475569; margin-bottom: 1.5rem; }
-        .btn { display: inline-block; background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 500; font-size: 1rem; cursor: pointer; transition: 0.2s; text-align: center; }
-        .btn:hover { background: var(--primary-hover); }
-        .btn:disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.7; }
-        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
-        .btn-outline:hover { background: #eff6ff; }
-        .input-group { margin-bottom: 1.5rem; }
-        .input-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #334155; }
-        .input-field, .select-field { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; transition: 0.2s; background: #fff; }
-        .input-field:focus, .select-field:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        .hidden { display: none !important; }
-        
-        .checkbox-label { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; margin-bottom: 1.5rem; }
-        .checkbox-label input[type="checkbox"] { margin-top: 0.25rem; transform: scale(1.2); accent-color: var(--primary); cursor: pointer; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .test-card { border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; cursor: pointer; transition: 0.2s; background: var(--card); display: flex; flex-direction: column; }
-        .test-card:hover { border-color: var(--primary); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transform: translateY(-2px); }
-        
-        .question { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-        .question-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; color: var(--text); }
-        .options-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .option-label { display: flex; align-items: flex-start; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fff; }
-        .option-label:hover { background: #f8fafc; border-color: #cbd5e1; }
-        .option-label input[type="radio"] { margin-top: 0.25rem; margin-right: 1rem; transform: scale(1.2); accent-color: var(--primary); cursor: pointer; }
-        
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-        .status-badge { background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 500; }
-        .report-block { background: #f8fafc; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
-        
-        .corporate-footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: #64748b; }
-        .corporate-footer span { font-weight: 600; color: var(--primary); }
-    </style>
-</head>
-<body>
-    <div class="app-container">
-        <div>
-            <!-- View: Informed Consent -->
-            <div id="view-consent" class="card">
-                <h1 style="color: var(--primary);">Інформована згода на участь у дослідженні</h1>
-                <p>Шановний(а) учаснику/це!</p>
-                <p>Запрошуємо вас взяти участь у науковому дослідженні кафедри клінічної психології. Метою дослідження є емпіричний вимір емоційного стану та психологічного благополуччя серед студентів та викладачів.</p>
-                <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; color: #475569;">
-                    <li><strong>Анонімність:</strong> Ваші дані будуть повністю анонімізовані. Замість імені система згенерує унікальний ідентифікатор (ID).</li>
-                    <li><strong>Використання даних:</strong> Зібрані «сирі» дані будуть використані виключно в узагальненому вигляді для статистичного аналізу.</li>
-                    <li><strong>Добровільність:</strong> Ви можете перервати тестування в будь-який момент.</li>
-                </ul>
-                
-                <label class="checkbox-label">
-                    <input type="checkbox" id="consent-checkbox" onchange="app.toggleConsent()">
-                    <span>Я підтверджую, що мені виповнилося 18 років, я ознайомився(лась) з умовами та <strong>надаю згоду</strong> на збір та обробку моїх анонімних даних для наукових цілей.</span>
-                </label>
-                
-                <button id="btn-consent-next" class="btn" style="width:100%" disabled onclick="app.switchView('view-demographics')">Продовжити</button>
-            </div>
-
-            <!-- View: Demographics -->
-            <div id="view-demographics" class="card hidden">
-                <h2>Соціально-демографічна анкета</h2>
-                <p>Будь ласка, вкажіть незалежні змінні для подальшого кореляційного аналізу.</p>
-                
-                <div class="input-group">
-                    <label>Ваша стать</label>
-                    <select id="demo-gender" class="select-field">
-                        <option value="" disabled selected>Оберіть...</option>
-                        <option value="male">Чоловіча</option>
-                        <option value="female">Жіноча</option>
-                        <option value="other">Інша / Не хочу вказувати</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Повний вік (років)</label>
-                    <input type="number" id="demo-age" class="input-field" min="16" max="99" placeholder="Наприклад, 21">
-                </div>
-
-                <div class="input-group">
-                    <label>Академічний статус</label>
-                    <select id="demo-status" class="select-field" onchange="app.toggleCourseField()">
-                        <option value="" disabled selected>Оберіть...</option>
-                        <option value="student">Студент</option>
-                        <option value="professor">Викладач / Співробітник</option>
-                    </select>
-                </div>
-
-                <div class="input-group" id="group-course" style="display: none;">
-                    <label>Курс (для студентів)</label>
-                    <select id="demo-course" class="select-field">
-                        <option value="1">1 курс</option>
-                        <option value="2">2 курс</option>
-                        <option value="3">3 курс</option>
-                        <option value="4">4 курс</option>
-                        <option value="5">Магістратура 1 рік</option>
-                        <option value="6">Магістратура 2 рік</option>
-                        <option value="phd">Аспірантура</option>
-                    </select>
-                </div>
-
-                <button class="btn" style="width:100%" onclick="app.saveDemographics()">Створити профіль та перейти до тестів</button>
-            </div>
-
-            <!-- View: Dashboard -->
-            <div id="view-dashboard" class="card hidden">
-                <div class="header-bar">
-                    <div>
-                        <div style="font-weight: 600; color: var(--text);">ID Учасника: <span id="display-id" style="color: var(--primary); font-family: monospace;"></span></div>
-                        <div class="status-badge" id="display-status" style="margin-top: 0.5rem; display: inline-block;"></div>
-                    </div>
-                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="app.resetSession()">Завершити сесію</button>
-                </div>
-                <h2>Батарея методик</h2>
-                <p>Усі методики представлені у повних, оригінальних версіях для забезпечення валідності даних.</p>
-                <div class="grid" id="test-grid"></div>
-            </div>
-
-            <!-- View: Test -->
-            <div id="view-test" class="card hidden">
-                <div class="header-bar">
-                    <h2 id="test-title" style="margin:0; color: var(--primary);">Назва тесту</h2>
-                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="app.switchView('view-dashboard')">Скасувати</button>
-                </div>
-                <div id="test-description" style="margin-bottom: 2rem; color: #475569; font-weight: 500;"></div>
-                <div id="questions-container"></div>
-                
-                <!-- ОБРАТИ ВНИМАНИЕ СЮДА: Теперь кнопка всегда видима, но отключена (disabled) по умолчанию -->
-                <button class="btn" id="btn-submit-test" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="app.submitTest()" disabled>
-                    Дайте відповідь на всі питання...
-                </button>
-            </div>
-
-            <!-- View: Result -->
-            <div id="view-result" class="card hidden">
-                <h2 style="color: var(--success);">Тестування успішно завершено</h2>
-                <p>Нижче наведено кількісні показники та загальну психологічну картину для клінічного психолога.</p>
-                
-                <div class="report-block">
-                    <h3 style="margin-bottom: 0.5rem;">Кількісні результати</h3>
-                    <p style="margin-bottom: 0.5rem;"><strong>Загальний бал:</strong> <span id="result-score" style="color: var(--primary);"></span></p>
-                    <p style="margin-bottom: 1rem;"><strong>Первинна інтерпретація:</strong> <span id="result-interp" style="font-weight: 500; color: var(--text);"></span></p>
-                    
-                    <h3 style="margin-bottom: 0.5rem; margin-top: 1.5rem;">Загальна психологічна картина (Клінічний висновок)</h3>
-                    <div id="clinical-summary" style="color: #334155; line-height: 1.7; white-space: pre-line;"></div>
-                </div>
-
-                <div id="bot-status-msg" style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--success); font-weight: 500;"></div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
-                    <button class="btn" onclick="app.downloadWord()">📄 Завантажити звіт у форматі Word (.doc)</button>
-                    <button class="btn btn-outline" onclick="app.switchView('view-dashboard')">Повернутися до каталогу</button>
-                </div>
-            </div>
-        </div>
-
-        <footer class="corporate-footer">
-            <p>&copy; 2026 <span>Shimon Goldfield</span>. All Rights Reserved. Protected under International Copyright & Patent Laws. Authorized Clinical Research Architecture.</p>
-        </footer>
-    </div>
-
-    <script>
-        const testsDb = [
-            // Вставь сюда все свои остальные тесты (BDI-II, HADS, GAD-7 и т.д.)
-            {
-                id: 'phq9',
-                title: 'Опитувальник здоров\'я пацієнта (PHQ-9)',
-                category: 'Депресія',
-                description: 'Найпоширеніший у світі короткий тест (9 питань) для скринінгу депресії та оцінки її тяжкості за останні 2 тижні.',
-                options: [
-                    {text: 'Зовсім ні', score: 0},
-                    {text: 'Кілька днів', score: 1},
-                    {text: 'Більше половини днів', score: 2},
-                    {text: 'Майже щодня', score: 3}
-                ],
-                questions: [
-                    "Мало інтересу чи задоволення від того, що ви робите?",
-                    "Відчуття пригніченості, депресії чи безнадії?",
-                    "Проблеми із засинанням чи сном, або занадто тривалий сон?",
-                    "Відчуття втоми чи нестачі енергії?",
-                    "Поганий апетит чи переїдання?",
-                    "Погане ставлення до себе, відчуття, що ви невдаха, або підвели себе чи сім'ю?",
-                    "Проблеми з концентрацією уваги (наприклад, під час читання чи перегляду телевізора)?",
-                    "Рухаєтесь або говорите настільки повільно, що це помічають інші? Або навпаки — сильна метушливість?",
-                    "Думки про те, що вам було б краще померти, або про заподіяння собі шкоди?"
-                ],
-                interpret: (score) => {
-                    if (score <= 4) return "Відсутність депресії (0-4 бали).";
-                    if (score <= 9) return "Легка депресія (5-9 балів). Рекомендується спостереження.";
-                    if (score <= 14) return "Помірна депресія (10-14 балів). Рекомендується консультація лікаря.";
-                    if (score <= 19) return "Виражена депресія (15-19 балів). Необхідна консультація спеціаліста.";
-                    return "Важка депресія (20-27 балів). Терміново зверніться до спеціаліста.";
-                },
-                getClinicalPicture: (score, demo) => {
-                    let level = score <= 4 ? "мінімальний" : score <= 9 ? "легкий" : score <= 14 ? "помірний" : score <= 19 ? "виражений" : "тяжкий";
-                    let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
-                    return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років, стать: ${demo.gender}):\n- Емоційний стан: За результатами скринінгу PHQ-9 виявлено ${level} рівень вираженості депресивної симптоматики (загальний бал — ${score}).\n- Афективна та соматовегетативна сфера: Відзначаються зміни в енергетичному балансі, якості сну та рівні повсякденної мотивації.\n- Рекомендації: Проведення клінічного інтерв'ю та динамічне спостереження за станом психологічного благополуччя.`;
-                }
+<script>
+    const testsDb = [
+        {
+            id: 'phq9',
+            title: 'Опитувальник здоров\'я пацієнта (PHQ-9)',
+            category: 'Депресія',
+            description: 'Найпоширеніший у світі короткий тест (9 питань) для скринінгу депресії та оцінки її тяжкості за останні 2 тижні.',
+            options: [
+                {text: 'Зовсім ні', score: 0},
+                {text: 'Кілька днів', score: 1},
+                {text: 'Більше половини днів', score: 2},
+                {text: 'Майже щодня', score: 3}
+            ],
+            questions: [
+                "Мало інтересу чи задоволення від того, що ви робите?",
+                "Відчуття пригніченості, депресії чи безнадії?",
+                "Проблеми із засинанням чи сном, або занадто тривалий сон?",
+                "Відчуття втоми чи нестачі енергії?",
+                "Поганий апетит чи переїдання?",
+                "Погане ставлення до себе, відчуття, що ви невдаха, або підвели себе чи сім'ю?",
+                "Проблеми з концентрацією уваги (наприклад, під час читання чи перегляду телевізора)?",
+                "Рухаєтесь або говорите настільки повільно, що це помічають інші? Або навпаки — сильна метушливість?",
+                "Думки про те, що вам було б краще померти, або про заподіяння собі шкоди?"
+            ],
+            interpret: (score) => {
+                if (score <= 4) return "Відсутність депресії (0-4 бали).";
+                if (score <= 9) return "Легка депресія (5-9 балів). Рекомендується спостереження.";
+                if (score <= 14) return "Помірна депресія (10-14 балів). Рекомендується консультація лікаря.";
+                if (score <= 19) return "Виражена депресія (15-19 балів). Необхідна консультація спеціаліста.";
+                return "Важка депресія (20-27 балів). Терміново зверніться до спеціаліста.";
+            },
+            getClinicalPicture: (score, demo) => {
+                let level = score <= 4 ? "мінімальний" : score <= 9 ? "легкий" : score <= 14 ? "помірний" : score <= 19 ? "виражений" : "тяжкий";
+                let statusStr = demo.status === 'student' ? `студент(ка) ${demo.course} курсу` : "викладач/співробітник";
+                return `Клінічний профіль обстеженого (${statusStr}, вік: ${demo.age} років, стать: ${demo.gender}):\n- Емоційний стан: За результатами скринінгу PHQ-9 виявлено ${level} рівень вираженості депресивної симптоматики (загальний бал — ${score}).\n- Афективна та соматовегетативна сфера: Відзначаються зміни в енергетичному балансі, якості сну та рівні повсякденної мотивації.\n- Рекомендації: Проведення клінічного інтерв'ю та динамічне спостереження за станом психологічного благополуччя.`;
             }
-        ];
+        }
+    ];
 
-        const app = {
-            participantId: '',
-            demographics: {},
-            currentTest: null,
-            lastResultData: null,
+    const app = {
+        participantId: '',
+        demographics: {},
+        currentTest: null,
+        lastResultData: null,
 
-            init() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready();
-                    tg.expand();
-                }
+        init() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+            }
 
-                const savedId = sessionStorage.getItem('empirical_id');
-                if (savedId) {
-                    this.participantId = savedId;
-                    this.demographics = JSON.parse(sessionStorage.getItem('empirical_demo'));
-                    this.showDashboard();
-                } else {
-                    this.switchView('view-consent');
-                }
-            },
-
-            generateUUID() {
-                return 'subj-' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-            },
-
-            toggleConsent() {
-                const isChecked = document.getElementById('consent-checkbox').checked;
-                document.getElementById('btn-consent-next').disabled = !isChecked;
-            },
-
-            toggleCourseField() {
-                const status = document.getElementById('demo-status').value;
-                document.getElementById('group-course').style.display = status === 'student' ? 'block' : 'none';
-            },
-
-            saveDemographics() {
-                const gender = document.getElementById('demo-gender').value;
-                const age = document.getElementById('demo-age').value;
-                const status = document.getElementById('demo-status').value;
-                const course = status === 'student' ? document.getElementById('demo-course').value : null;
-
-                if (!gender || !age || !status) {
-                    alert('Будь ласка, заповніть усі обов\'язкові поля анкети.');
-                    return;
-                }
-
-                this.participantId = this.generateUUID();
-                this.demographics = { gender, age: parseInt(age), status, course };
-                
-                sessionStorage.setItem('empirical_id', this.participantId);
-                sessionStorage.setItem('empirical_demo', JSON.stringify(this.demographics));
-                
+            const savedId = sessionStorage.getItem('empirical_id');
+            if (savedId) {
+                this.participantId = savedId;
+                this.demographics = JSON.parse(sessionStorage.getItem('empirical_demo'));
                 this.showDashboard();
-            },
-
-            resetSession() {
-                sessionStorage.clear();
-                this.participantId = '';
-                this.demographics = {};
-                document.getElementById('consent-checkbox').checked = false;
-                this.toggleConsent();
+            } else {
                 this.switchView('view-consent');
-            },
-
-            showDashboard() {
-                document.getElementById('display-id').textContent = this.participantId;
-                const statusText = this.demographics.status === 'student' ? `Студент (${this.demographics.course} курс)` : 'Викладач';
-                document.getElementById('display-status').textContent = `${statusText} | Вік: ${this.demographics.age}`;
-                
-                const grid = document.getElementById('test-grid');
-                grid.innerHTML = '';
-                
-                testsDb.forEach(test => {
-                    const card = document.createElement('div');
-                    card.className = 'test-card';
-                    card.onclick = () => this.startTest(test.id);
-                    card.innerHTML = `<h3 style="margin-bottom: 0.5rem; color: var(--primary);">${test.title}</h3><p style="font-size:0.9rem; flex-grow: 1;">${test.description}</p><div style="font-weight: 500;">Розпочати →</div>`;
-                    grid.appendChild(card);
-                });
-
-                this.switchView('view-dashboard');
-            },
-
-            // --- ОБНОВЛЕНО: Подготовка кнопки перед началом теста ---
-            startTest(testId) {
-                this.currentTest = testsDb.find(t => t.id === testId);
-                document.getElementById('test-title').textContent = this.currentTest.title;
-                document.getElementById('test-description').textContent = this.currentTest.description;
-                
-                const container = document.getElementById('questions-container');
-                container.innerHTML = '';
-                
-                this.currentTest.questions.forEach((q, index) => {
-                    const qBlock = document.createElement('div');
-                    qBlock.className = 'question';
-                    
-                    if (this.currentTest.type === 'custom_options') {
-                        let optsHtml = q.map((opt) => `
-                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
-                        `).join('');
-                        qBlock.innerHTML = `<div class="question-title">Пункт ${index + 1} з ${this.currentTest.questions.length}</div><div class="options-group">${optsHtml}</div>`;
-                    } else {
-                        let optsHtml = this.currentTest.options.map((opt) => `
-                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
-                        `).join('');
-                        qBlock.innerHTML = `<div class="question-title">${index + 1}. ${q}</div><div class="options-group">${optsHtml}</div>`;
-                    }
-                    container.appendChild(qBlock);
-                });
-
-                // Сбрасываем состояние кнопки
-                const submitBtn = document.getElementById('btn-submit-test');
-                submitBtn.disabled = true;
-                submitBtn.textContent = `Дайте відповідь на всі питання (0 з ${this.currentTest.questions.length})...`;
-                
-                this.switchView('view-test');
-                window.scrollTo(0, 0);
-            },
-
-            // --- ОБНОВЛЕНО: Проверка прогресса и изменение текста на кнопке ---
-            checkProgress() {
-                const totalQ = this.currentTest.questions.length;
-                const answered = document.querySelectorAll('#questions-container input[type="radio"]:checked').length;
-                const submitBtn = document.getElementById('btn-submit-test');
-                
-                if(answered === totalQ) {
-                    // Если ответили на все, включаем кнопку
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Зберегти результати та сформувати висновок';
-                } else {
-                    // Иначе показываем прогресс
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = `Дайте відповідь на всі питання (${answered} з ${totalQ})...`;
-                }
-            },
-
-            submitTest() {
-                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                let totalScore = 0;
-                
-                inputs.forEach((input) => {
-                    totalScore += parseInt(input.value);
-                });
-                
-                const interpretation = this.currentTest.interpret(totalScore);
-                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
-
-                this.lastResultData = {
-                    title: this.currentTest.title,
-                    id: this.participantId,
-                    score: totalScore,
-                    interp: interpretation,
-                    picture: clinicalPicture,
-                    date: new Date().toLocaleString()
-                };
-
-                const statusMsg = document.getElementById('bot-status-msg');
-                statusMsg.textContent = 'Формуємо дані для відправки...';
-
-                let telegramUserId = null;
-                let userName = "Анонім";
-
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    userName = window.Telegram.WebApp.initDataUnsafe.user.first_name || window.Telegram.WebApp.initDataUnsafe.user.username || "Користувач";
-                }
-
-                const payload = {
-                    ...this.lastResultData,
-                    telegramUserId: telegramUserId,
-                    userName: userName
-                };
-
-                // ВНИМАНИЕ: Вставь сюда URL своего Cloudflare Worker!
-                const WORKER_URL = "muddy-boat-4d78.nikita-tkachen2002.workers.dev";
-
-                if (telegramUserId) {
-                    fetch(WORKER_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    })submitTest() {
-                const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
-                let totalScore = 0;
-                
-                inputs.forEach((input) => {
-                    totalScore += parseInt(input.value);
-                });
-                
-                const interpretation = this.currentTest.interpret(totalScore);
-                const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
-
-                this.lastResultData = {
-                    title: this.currentTest.title,
-                    id: this.participantId,
-                    score: totalScore,
-                    interp: interpretation,
-                    picture: clinicalPicture,
-                    date: new Date().toLocaleString()
-                };
-
-                const statusMsg = document.getElementById('bot-status-msg');
-                statusMsg.textContent = 'Формуємо дані для відправки...';
-
-                let telegramUserId = null;
-                let userName = "Анонім";
-
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    userName = window.Telegram.WebApp.initDataUnsafe.user.first_name || window.Telegram.WebApp.initDataUnsafe.user.username || "Користувач";
-                }
-
-                const payload = {
-                    ...this.lastResultData,
-                    telegramUserId: telegramUserId,
-                    userName: userName
-                };
-
-                // ВНИМАНИЕ: Убедись, что тут стоит ссылка на твой Cloudflare Worker
-                const WORKER_URL = "muddy-boat-4d78.nikita-tkachen2002.workers.dev";
-
-                if (telegramUserId) {
-                    fetch(WORKER_URL, {
-                        method: 'POST',
-                        cache: 'no-store', // Жестко запрещаем кэширование
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(async response => {
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            throw new Error(`Помилка сервера ${response.status}: ${errorText}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            statusMsg.innerHTML = '<span style="color: #059669;">✅ Результати успішно передано в бот!</span>';
-                        } else {
-                            statusMsg.innerHTML = `<span style="color: #d97706;">⚠ Відповідь сервера: ${data.error || 'Невідома помилка'}</span>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Детальна помилка fetch:', error);
-                        // Выводим точную техническую причину сбоя
-                        statusMsg.innerHTML = `<span style="color: #dc2626;">❌ Технічна помилка: ${error.message}</span>`;
-                    });
-                } else {
-                    statusMsg.textContent = '⚠ Відкрито поза Telegram. Результати збережено локально.';
-                }
-
-                document.getElementById('result-score').textContent = totalScore;
-                document.getElementById('result-interp').textContent = interpretation;
-                document.getElementById('clinical-summary').textContent = clinicalPicture;
-
-                this.switchView('view-result');
-                window.scrollTo(0, 0);
             }
+        },
 
-        window.onload = () => app.init();
-    </script>
-
-    <!-- ЗАЩИТНЫЙ СКРИПТ -->
-    <script>
-        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-        document.addEventListener('keydown', function(e) {
-            if (e.code === 'F12' || e.keyCode === 123) { e.preventDefault(); return; }
-            if (e.ctrlKey || e.metaKey) {
-                const forbiddenCodes = ['KeyA', 'KeyC', 'KeyV', 'KeyX', 'KeyS', 'KeyP', 'KeyU'];
-                if (forbiddenCodes.includes(e.code)) { e.preventDefault(); }
-                if (e.shiftKey && ['KeyI', 'KeyJ', 'KeyC'].includes(e.code)) { e.preventDefault(); }
-            }
-        }, { capture: true });
-        ['copy', 'cut', 'paste'].forEach(function(event) {
-            document.addEventListener(event, function(e) {
-                e.preventDefault(); 
-                if (e.clipboardData) { e.clipboardData.setData('text/plain', ''); }
+        // НОВАЯ ФУНКЦИЯ: Переключение экранов
+        switchView(viewId) {
+            // Список всех возможных экранов
+            const views = ['view-consent', 'view-demographics', 'view-dashboard', 'view-test', 'view-result'];
+            // Прячем все экраны
+            views.forEach(view => {
+                document.getElementById(view).classList.add('hidden');
             });
-        });
-        document.addEventListener('dragstart', function(e) { e.preventDefault(); });
-    </script>
-</body>
-</html>
+            // Показываем только тот, который нужен
+            document.getElementById(viewId).classList.remove('hidden');
+        },
+
+        generateUUID() {
+            return 'subj-' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        },
+
+        toggleConsent() {
+            const isChecked = document.getElementById('consent-checkbox').checked;
+            document.getElementById('btn-consent-next').disabled = !isChecked;
+        },
+
+        toggleCourseField() {
+            const status = document.getElementById('demo-status').value;
+            document.getElementById('group-course').style.display = status === 'student' ? 'block' : 'none';
+        },
+
+        saveDemographics() {
+            const gender = document.getElementById('demo-gender').value;
+            const age = document.getElementById('demo-age').value;
+            const status = document.getElementById('demo-status').value;
+            const course = status === 'student' ? document.getElementById('demo-course').value : null;
+
+            if (!gender || !age || !status) {
+                alert('Будь ласка, заповніть усі обов\'язкові поля анкети.');
+                return;
+            }
+
+            this.participantId = this.generateUUID();
+            this.demographics = { gender, age: parseInt(age), status, course };
+            
+            sessionStorage.setItem('empirical_id', this.participantId);
+            sessionStorage.setItem('empirical_demo', JSON.stringify(this.demographics));
+            
+            this.showDashboard();
+        },
+
+        resetSession() {
+            sessionStorage.clear();
+            this.participantId = '';
+            this.demographics = {};
+            document.getElementById('consent-checkbox').checked = false;
+            this.toggleConsent();
+            this.switchView('view-consent');
+        },
+
+        showDashboard() {
+            document.getElementById('display-id').textContent = this.participantId;
+            const statusText = this.demographics.status === 'student' ? `Студент (${this.demographics.course} курс)` : 'Викладач';
+            document.getElementById('display-status').textContent = `${statusText} | Вік: ${this.demographics.age}`;
+            
+            const grid = document.getElementById('test-grid');
+            grid.innerHTML = '';
+            
+            testsDb.forEach(test => {
+                const card = document.createElement('div');
+                card.className = 'test-card';
+                card.onclick = () => this.startTest(test.id);
+                card.innerHTML = `<h3 style="margin-bottom: 0.5rem; color: var(--primary);">${test.title}</h3><p style="font-size:0.9rem; flex-grow: 1;">${test.description}</p><div style="font-weight: 500;">Розпочати →</div>`;
+                grid.appendChild(card);
+            });
+
+            this.switchView('view-dashboard');
+        },
+
+        startTest(testId) {
+            this.currentTest = testsDb.find(t => t.id === testId);
+            document.getElementById('test-title').textContent = this.currentTest.title;
+            document.getElementById('test-description').textContent = this.currentTest.description;
+            
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            
+            this.currentTest.questions.forEach((q, index) => {
+                const qBlock = document.createElement('div');
+                qBlock.className = 'question';
+                
+                if (this.currentTest.type === 'custom_options') {
+                    let optsHtml = q.map((opt) => `
+                        <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
+                    `).join('');
+                    qBlock.innerHTML = `<div class="question-title">Пункт ${index + 1} з ${this.currentTest.questions.length}</div><div class="options-group">${optsHtml}</div>`;
+                } else {
+                    let optsHtml = this.currentTest.options.map((opt) => `
+                        <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
+                    `).join('');
+                    qBlock.innerHTML = `<div class="question-title">${index + 1}. ${q}</div><div class="options-group">${optsHtml}</div>`;
+                }
+                container.appendChild(qBlock);
+            });
+
+            const submitBtn = document.getElementById('btn-submit-test');
+            submitBtn.disabled = true;
+            submitBtn.textContent
