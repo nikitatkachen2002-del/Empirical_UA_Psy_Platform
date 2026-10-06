@@ -62,7 +62,7 @@
 <body>
     <div class="app-container">
         <div>
-            <!-- View: Informed Consent -->
+            <!-- Экран 1: Информированное согласие -->
             <div id="view-consent" class="card">
                 <h1 style="color: var(--primary);">Інформована згода на участь у дослідженні</h1>
                 <p>Шановний(а) учаснику/це!</p>
@@ -74,14 +74,16 @@
                 </ul>
                 
                 <label class="checkbox-label">
-                    <input type="checkbox" id="consent-checkbox" onchange="app.toggleConsent()">
+                    <!-- Вызываем метод toggleConsent при клике на чекбокс -->
+                    <input type="checkbox" id="consent-checkbox" onchange="window.app.toggleConsent()">
                     <span>Я підтверджую, що мені виповнилося 18 років, я ознайомився(лась) з умовами та <strong>надаю згоду</strong> на збір та обробку моїх анонімних даних для наукових цілей.</span>
                 </label>
                 
-                <button id="btn-consent-next" class="btn" style="width:100%" disabled onclick="app.switchView('view-demographics')">Продовжити</button>
+                <!-- Кнопка Продолжить, изначально отключена (disabled) -->
+                <button id="btn-consent-next" class="btn" style="width:100%" disabled onclick="window.app.switchView('view-demographics')">Продовжити</button>
             </div>
 
-            <!-- View: Demographics -->
+            <!-- Экран 2: Демография -->
             <div id="view-demographics" class="card hidden">
                 <h2>Соціально-демографічна анкета</h2>
                 <p>Будь ласка, вкажіть незалежні змінні для подальшого кореляційного аналізу.</p>
@@ -103,7 +105,7 @@
 
                 <div class="input-group">
                     <label>Академічний статус</label>
-                    <select id="demo-status" class="select-field" onchange="app.toggleCourseField()">
+                    <select id="demo-status" class="select-field" onchange="window.app.toggleCourseField()">
                         <option value="" disabled selected>Оберіть...</option>
                         <option value="student">Студент</option>
                         <option value="professor">Викладач / Співробітник</option>
@@ -123,35 +125,35 @@
                     </select>
                 </div>
 
-                <button class="btn" style="width:100%" onclick="app.saveDemographics()">Створити профіль та перейти до тестів</button>
+                <button class="btn" style="width:100%" onclick="window.app.saveDemographics()">Створити профіль та перейти до тестів</button>
             </div>
 
-            <!-- View: Dashboard -->
+            <!-- Экран 3: Каталог тестов -->
             <div id="view-dashboard" class="card hidden">
                 <div class="header-bar">
                     <div>
                         <div style="font-weight: 600; color: var(--text);">ID Учасника: <span id="display-id" style="color: var(--primary); font-family: monospace;"></span></div>
                         <div class="status-badge" id="display-status" style="margin-top: 0.5rem; display: inline-block;"></div>
                     </div>
-                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="app.resetSession()">Завершити сесію</button>
+                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="window.app.resetSession()">Завершити сесію</button>
                 </div>
                 <h2>Батарея методик</h2>
                 <p>Усі методики представлені у повних, оригінальних версіях для забезпечення валідності даних.</p>
                 <div class="grid" id="test-grid"></div>
             </div>
 
-            <!-- View: Test -->
+            <!-- Экран 4: Прохождение теста -->
             <div id="view-test" class="card hidden">
                 <div class="header-bar">
                     <h2 id="test-title" style="margin:0; color: var(--primary);">Назва тесту</h2>
-                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="app.switchView('view-dashboard')">Скасувати</button>
+                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="window.app.switchView('view-dashboard')">Скасувати</button>
                 </div>
                 <div id="test-description" style="margin-bottom: 2rem; color: #475569; font-weight: 500;"></div>
                 <div id="questions-container"></div>
-                <button class="btn hidden" id="btn-submit-test" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="app.submitTest()">Зберегти результати та сформувати висновок</button>
+                <button class="btn hidden" id="btn-submit-test" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.1rem;" onclick="window.app.submitTest()">Зберегти результати та сформувати висновок</button>
             </div>
 
-            <!-- View: Result -->
+            <!-- Экран 5: Результаты -->
             <div id="view-result" class="card hidden">
                 <h2 style="color: var(--success);">Тестування успішно завершено</h2>
                 <p>Нижче наведено кількісні показники та загальну психологічну картину для клінічного психолога.</p>
@@ -168,8 +170,8 @@
                 <div id="bot-status-msg" style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--success); font-weight: 500;"></div>
                 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
-                    <button class="btn" onclick="app.downloadWord()">📄 Завантажити звіт у форматі Word (.doc)</button>
-                    <button class="btn btn-outline" onclick="app.switchView('view-dashboard')">Повернутися до каталогу</button>
+                    <button class="btn" onclick="window.app.downloadWord()">📄 Завантажити звіт у форматі Word (.doc)</button>
+                    <button class="btn btn-outline" onclick="window.app.switchView('view-dashboard')">Повернутися до каталогу</button>
                 </div>
             </div>
         </div>
@@ -179,7 +181,7 @@
         </footer>
     </div>
 
-    <!-- ЛОГИКА ТЕСТОВ И ИНИЦИАЛИЗАЦИЯ TELEGRAM MINI APP -->
+    <!-- ЛОГИКА ПРИЛОЖЕНИЯ (JAVASCRIPT) -->
     <script>
         const testsDb = [
             {
@@ -647,7 +649,7 @@
                 testsDb.forEach(test => {
                     const card = document.createElement('div');
                     card.className = 'test-card';
-                    card.onclick = () => this.startTest(test.id);
+                    card.onclick = () => window.app.startTest(test.id);
                     card.innerHTML = `<h3 style="margin-bottom: 0.5rem; color: var(--primary);">${test.title}</h3><p style="font-size:0.9rem; flex-grow: 1;">${test.description}</p><div style="font-weight: 500;">Розпочати →</div>`;
                     grid.appendChild(card);
                 });
@@ -669,12 +671,12 @@
                     
                     if (this.currentTest.type === 'custom_options') {
                         let optsHtml = q.map((opt) => `
-                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
+                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="window.app.checkProgress()"><span>${opt.text}</span></label>
                         `).join('');
                         qBlock.innerHTML = `<div class="question-title">Пункт ${index + 1} з ${this.currentTest.questions.length}</div><div class="options-group">${optsHtml}</div>`;
                     } else {
                         let optsHtml = this.currentTest.options.map((opt) => `
-                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="app.checkProgress()"><span>${opt.text}</span></label>
+                            <label class="option-label"><input type="radio" name="q${index}" value="${opt.score}" onchange="window.app.checkProgress()"><span>${opt.text}</span></label>
                         `).join('');
                         qBlock.innerHTML = `<div class="question-title">${index + 1}. ${q}</div><div class="options-group">${optsHtml}</div>`;
                     }
@@ -694,7 +696,6 @@
                 }
             },
 
-            // --- НОВАЯ СИСТЕМА ОТПРАВКИ (ФУНКЦИЯ FETCH К WORKER) ---
             submitTest() {
                 const inputs = document.querySelectorAll('#questions-container input[type="radio"]:checked');
                 let totalScore = 0;
@@ -706,7 +707,7 @@
                 const interpretation = this.currentTest.interpret(totalScore);
                 const clinicalPicture = this.currentTest.getClinicalPicture ? this.currentTest.getClinicalPicture(totalScore, this.demographics) : "Дані опрацьовано.";
 
-                // Пытаемся получить данные пользователя из Telegram
+                // Получаем данные юзера из Телеграма
                 let telegramUserId = null;
                 let userName = "Анонім";
 
@@ -729,9 +730,8 @@
                 const statusMsg = document.getElementById('bot-status-msg');
                 statusMsg.textContent = 'Формуємо дані для відправки...';
 
-                // ⚠️ ВАЖНО: ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ CLOUDFLARE WORKER!
-                const WORKER_URL = "https://muddy-boat-4d78.nikita-tkachen2002.workers.dev
-"; 
+                // ⚠️ ВАЖНО: ЗАМЕНИ ЭТУ ССЫЛКУ НА СВОЮ
+                const WORKER_URL = "https://muddy-boat-4d78.nikita-tkachen2002.workers.dev"; 
 
                 if (telegramUserId) {
                     fetch(WORKER_URL, {
@@ -757,7 +757,6 @@
                     statusMsg.textContent = '⚠ Відкрито поза Telegram. Результати збережено локально.';
                 }
 
-                // Обновляем результаты на экране пользователя
                 document.getElementById('result-score').textContent = totalScore;
                 document.getElementById('result-interp').textContent = interpretation;
                 document.getElementById('clinical-summary').textContent = clinicalPicture;
@@ -812,7 +811,10 @@
             }
         };
 
-        window.onload = () => app.init();
+        // ПРИКЛЕИВАЕМ APP К ГЛОБАЛЬНОМУ ОКНУ ДЛЯ РАБОТЫ КНОПОК
+        window.app = app;
+
+        window.onload = () => window.app.init();
     </script>
 
     <!-- ЗАЩИТНЫЙ СКРИПТ -->
